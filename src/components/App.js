@@ -1,118 +1,91 @@
-import React from "react";
-import { useState } from "react";
-import { Validation } from "./utils/Validation";
-import "../styles/App.css";
+import React from 'react'
+import { useState } from 'react';
+import '../styles/App.css';
+
 
 const App = () => {
-  const [details, setDetails] = useState({
+  const [state, setState] = useState({
     username: "",
     email: "",
     password: "",
     contactNo: "",
-  });
-
+  })
   const [error, setError] = useState({
     username: "",
     email: "",
     password: "",
     contactNo: "",
-  });
+  })
+  const [success, setSuccess] = useState('none');
 
-  const [flag, setFlag] = useState(false);
+  const disableStyle = {
+    display: `${success}`,
+  }
 
-  const formSubmit = (e) => {
-    e.preventDefault();
-    const validationResult = Validation(details);
-    if (Object.keys(validationResult).length > 0) {
-      setError({...error, ...validationResult});
-      console.log(error)
-      setDetails({
-        username: "",
-        email: "",
-        password: "",
-        contactNo: "",
-      });
-      return;
-    } else {
-      setFlag(true);
-      setDetails({
-        username: "",
-        email: "",
-        password: "",
-        contactNo: "",
-      });
-      setError({
-        username: "",
-        email: "",
-        password: "",
-        contactNo: "",
-      });
+  const validateInput = (formObject) => {
+    const errors = {}
+    Object.keys(formObject).forEach((val) => {
+      if (formObject[val] === "")
+        errors[val] = "Please fill this field"
+    });
+    if (formObject.password.length < 4) {
+      errors.password = "Password cannot contain characters less than 4";
     }
-  };
+    if (formObject.contactNo.length != 10) {
+      errors.contactNo = "Contact number should have exactly 10 digits"
+    }
+    return errors;
+  }
 
-  const handleChange = (e) => {
-    setDetails({ ...details, [e.target.name]: e.target.value });
-  };
+  const takeInput = (e) => {
+    let key = e.target.name;
+    let value = e.target.value;
+    setState({
+      ...state,
+      [key]: value,
+    })
+  }
+  
+  const submit = (e) => {
+    e.preventDefault();
+    setError({});
+    const errors = validateInput(state)
+    if (Object.keys(errors).length > 0) {
+      setError(errors);
+      return;
+    }
+    setSuccess("block");
+    e.target.reset()
+  }
 
   return (
     <div id="main">
-      {flag ? <h3 className="success-alert">Registered Successfullly</h3> : ""}
-      <form onSubmit={formSubmit}>
+      <h3 className='success-alert' style={disableStyle}>Registered Successfullly</h3>
+      <form onSubmit={submit}>
         <h1>Registeration Form</h1>
         <section>
           <label>Username</label>
-          <input
-            type="text"
-            name="username"
-            value={details.username}
-            onChange={handleChange}
-          />
-          {error.username.length > 0 ? (
-            <p className="username-error">{error.username.length}</p>
-          ) : (
-            ""
-          )}
+          <input type="text" name='username' onChange={takeInput} />
+          {error.username?<p className='username-error'>{error.username}</p>:""}
+  
           <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={details.email}
-            onChange={handleChange}
-          />
-          {error.email.length > 0 ? (
-            <p className="email-error">{error.email}</p>
-          ) : (
-            ""
-          )}
+          <input type="email" name='email' onChange={takeInput} />
+          {error.email?<p className='email-error'>{error.email}</p>:""}
+ 
           <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={details.password}
-            onChange={handleChange}
-          />
-          {error.password.length > 0 ? (
-            <p className="password-error">{error.password}</p>
-          ) : (
-            ""
-          )}
+          <input type="password" name='password' onChange={takeInput} />
+          {error.password?<p className='password-error'>{error.password}</p>:""}
+        
           <label>Contact Number</label>
-          <input
-            type="number"
-            name="contactNo"
-            value={details.contactNo}
-            onChange={handleChange}
-          />
-          {error.contactNo.length > 0 ? (
-            <p className="contactNo-error">{error.contactNo}</p>
-          ) : (
-            ""
-          )}
-          <button type="submit">Submit</button>
+          <input type="number" name='contactNo' onChange={takeInput} />
+          {error.contactNo?<p className='contactNo-error'>{error.contactNo}</p>:""}
+     
+          <button>Submit</button>
         </section>
       </form>
     </div>
-  );
-};
+  )
+}
+
 
 export default App;
